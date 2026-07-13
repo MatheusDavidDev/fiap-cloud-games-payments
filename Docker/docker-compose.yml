@@ -1,0 +1,19 @@
+version: "3.9"
+
+name: "fgc-payments-docker"
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    container_name: FCG-payments-sql-database
+    ports:
+      - "1434:1433"
+    environment:
+      SA_PASSWORD: "Sql@123456789"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
