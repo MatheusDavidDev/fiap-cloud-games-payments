@@ -1,0 +1,3 @@
+[submodule "Api/libs"]
+	path = Api/libs
+	url = https://github.com/MatheusDavidDev/fiap-cloud-games-contracts.git

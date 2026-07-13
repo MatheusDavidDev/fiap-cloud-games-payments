@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FCG.Payments.Api.Controllers;
 
 [ApiController]
-[Route("Pagamentos")]
+[Route("api/pagamentos")]
 public class PagamentoController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -22,7 +22,7 @@ public class PagamentoController : ControllerBase
     [HttpPost("processar-pagamento")]
     public async Task<IActionResult> ProcessarPagamento(ProcessarPagamentoModel model)
     {
-        await _mediator.Send(new ProcessarPagamentoCommand(model.IdUsuario, model.IdJogo, model.Preco));
+        await _mediator.Send(new ProcessarPagamentoCommand(model.IdOrdemCompra, model.IdUsuario, model.IdJogo, model.Preco));
         return Ok();
     }
 
@@ -34,7 +34,7 @@ public class PagamentoController : ControllerBase
     }
 
     [HttpGet("usuario/{id}")]
-    public async Task<IActionResult> ObterJogos(Guid id)
+    public async Task<IActionResult> ObterPagamentosPorIdUsuario(Guid id)
     {
         var result = await _queryService.ObterPagamentosPorIdUsuarioAsync(id, CancellationToken.None);
         return Ok(result);

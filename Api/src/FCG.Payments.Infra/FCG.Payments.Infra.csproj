@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\libs\FCG.Contracts\FCG.Contracts.csproj" />
     <ProjectReference Include="..\FCG.Payments.Application\FCG.Payments.Application.csproj" />
     <ProjectReference Include="..\FCG.Payments.Domain\FCG.Payments.Domain.csproj" />
   </ItemGroup>
@@ -10,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit" Version="9.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.17" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.17">
       <PrivateAssets>all</PrivateAssets>

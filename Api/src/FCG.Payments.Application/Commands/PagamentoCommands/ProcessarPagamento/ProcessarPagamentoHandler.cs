@@ -1,5 +1,7 @@
-﻿using FCG.Payments.Core.UnitOfWork;
+﻿using FCG.Contracts;
+using FCG.Payments.Core.UnitOfWork;
 using FCG.Payments.Domain.Entities;
+using MassTransit;
 using MediatR;
 
 namespace FCG.Payments.Application.Commands.PagamentoCommands.ProcessarPagamento;
@@ -7,10 +9,12 @@ namespace FCG.Payments.Application.Commands.PagamentoCommands.ProcessarPagamento
 public class ProcessarPagamentoHandler : IRequestHandler<ProcessarPagamentoCommand>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public ProcessarPagamentoHandler(IUnitOfWork unitOfWork)
+    public ProcessarPagamentoHandler(IUnitOfWork unitOfWork, IPublishEndpoint publishEndpoint)
     {
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task Handle(ProcessarPagamentoCommand request, CancellationToken cancellationToken)
@@ -27,6 +31,7 @@ public class ProcessarPagamentoHandler : IRequestHandler<ProcessarPagamentoComma
         }
 
         var pagamento = new Pagamento(
+            request.IdOrdemCompra,
             request.IdUsuario,
             request.IdJogo,
             request.Preco);
@@ -45,5 +50,13 @@ public class ProcessarPagamentoHandler : IRequestHandler<ProcessarPagamentoComma
         await pagamentoRepository.AddAsync(pagamento, cancellationToken);
 
         await _unitOfWork.SaveChanges();
+
+        await _publishEndpoint.Publish(new PaymentProcessedEvent(
+            pagamento.IdOrdemCompra,
+            pagamento.IdUsuario,
+            pagamento.IdJogo,
+            pagamento.Preco,
+            pagamento.Status.ToString(),
+            DateTime.UtcNow), cancellationToken);
     }
 }

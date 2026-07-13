@@ -4,7 +4,9 @@ using FCG.Payments.Core.Behaviors;
 using FCG.Payments.Core.UnitOfWork;
 using FCG.Payments.Infra;
 using FCG.Payments.Infra.Queries;
+using FCG.Payments.Infra.Rabbitmq.Consumers;
 using FluentValidation;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -19,6 +21,25 @@ builder.Services.AddOpenApi();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<FcgPaymentsDbContext>(options => options.UseSqlServer(connectionString));
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<OrderPlacedConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(
+            builder.Configuration["RabbitMQ:Host"],
+            builder.Configuration["RabbitMQ:VirtualHost"],
+            h =>
+            {
+                h.Username(builder.Configuration["RabbitMQ:Username"!]);
+                h.Password(builder.Configuration["RabbitMQ:Password"]);
+            });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 
 #region DI
