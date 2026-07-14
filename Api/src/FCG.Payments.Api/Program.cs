@@ -1,3 +1,5 @@
+using FCG.Payments.Api.Erros;
+using FCG.Payments.Api.Middlewares;
 using FCG.Payments.Application.Commands.PagamentoCommands.ProcessarPagamento;
 using FCG.Payments.Application.Queries;
 using FCG.Payments.Core.Behaviors;
@@ -10,12 +12,23 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configuração do Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
 
-builder.Services.AddControllers();
+builder.Host.UseSerilog();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+builder.Services.AddControllers()
+    ;
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -44,6 +57,7 @@ builder.Services.AddMassTransit(x =>
 
 #region DI
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork<FcgPaymentsDbContext>>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 // Query Services
@@ -71,6 +85,10 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<FcgPaymentsDbContext>();
     db.Database.Migrate();
 }
+
+app.UseMiddleware<RequestLoggingMiddleware>();
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 

@@ -33,10 +33,10 @@ public class PagamentoController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("usuario/{id}")]
-    public async Task<IActionResult> ObterPagamentosPorIdUsuario(Guid id)
+    [HttpGet("usuario/{idUsuario}")]
+    public async Task<IActionResult> ObterPagamentosPorIdUsuario(Guid idUsuario)
     {
-        var result = await _queryService.ObterPagamentosPorIdUsuarioAsync(id, CancellationToken.None);
+        var result = await _queryService.ObterPagamentosPorIdUsuarioAsync(idUsuario, CancellationToken.None);
         return Ok(result);
     }
 }
