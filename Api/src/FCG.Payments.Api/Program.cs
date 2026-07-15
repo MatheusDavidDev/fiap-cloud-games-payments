@@ -73,16 +73,22 @@ builder.Services.AddValidatorsFromAssembly(typeof(ProcessarPagamentoValidator).A
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.MapOpenApi();
+//    app.MapScalarApiReference();
+//}
 
-using (var scope = app.Services.CreateScope())
+app.MapOpenApi();
+app.MapScalarApiReference();
+
+if (System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name != "GetDocument.Insider")
 {
-    var db = scope.ServiceProvider.GetRequiredService<FcgPaymentsDbContext>();
-    db.Database.Migrate();
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<FcgPaymentsDbContext>();
+        db.Database.Migrate();
+    }
 }
 
 app.UseMiddleware<RequestLoggingMiddleware>();

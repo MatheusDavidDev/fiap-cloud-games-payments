@@ -1,0 +1,75 @@
+version: "3.9"
+
+name: "fgc-payments-docker"
+services:
+
+  payments-db:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+
+    container_name: fcg-payments-sql-db
+    ports:
+      - "1434:1433"
+
+    deploy:
+      resources:
+        limits:
+          memory: 1500M 
+        reservations:
+          memory: 1000M  
+              
+    environment:
+      SA_PASSWORD: "Sql@123456789"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+
+    volumes:
+      - payments-data:/var/opt/mssql
+      
+    restart: unless-stopped
+
+    networks:
+      - fcg-network
+
+  payments-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: fcg-payments-api
+
+    ports:
+      - "5003:8080"
+
+    depends_on:
+      - payments-db
+
+    deploy:
+      resources:
+        limits:
+          memory: 512M      
+        reservations:
+          memory: 256M       
+
+    environment:
+      #ConnectionStrings
+      ConnectionStrings__DefaultConnection: "Server=payments-db;Database=paymentso;User Id=sa;Password=Sql@123456789;TrustServerCertificate=True"
+
+      #JWT
+      Jwt__Key: "uma-chave-grande-e-secreta-para-jwt"
+
+      # RabbitMQ
+      RabbitMQ__Host: "rabbitmq"
+      RabbitMQ__VirtualHost: "/"
+      RabbitMQ__Username: "fcgrabbtmq"
+      RabbitMQ__Password: "fcgrabbtmq"
+
+    networks:
+      - fcg-network
+
+volumes:
+  payments-data:
+
+
+networks:
+  fcg-network:
+    external: true
