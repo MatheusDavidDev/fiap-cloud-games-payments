@@ -79,8 +79,12 @@ var app = builder.Build();
 //    app.MapScalarApiReference();
 //}
 
-app.MapOpenApi();
-app.MapScalarApiReference();
+app.MapOpenApi("/payments-scalar/openapi.json");
+app.MapScalarApiReference("/payments-scalar", options =>
+{
+    options.WithOpenApiRoutePattern("/payments-scalar/openapi.json");
+    options.Title = "FCG Payments API";
+});
 
 if (System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name != "GetDocument.Insider")
 {
