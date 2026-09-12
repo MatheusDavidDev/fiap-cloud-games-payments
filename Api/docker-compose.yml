@@ -3,6 +3,20 @@ version: "3.9"
 name: "fgc-payments-docker"
 services:
 
+  rabbitmq:
+
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    environment:
+      RABBITMQ_DEFAULT_USER: fcgrabbtmq
+      RABBITMQ_DEFAULT_PASS: fcgrabbtmq
+
+    networks:
+      - fcg-network
+
   payments-db:
     image: mcr.microsoft.com/mssql/server:2025-latest
 
@@ -42,6 +56,7 @@ services:
 
     depends_on:
       - payments-db
+      - rabbitmq
 
     deploy:
       resources:
