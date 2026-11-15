@@ -37,7 +37,7 @@ spec:
 
         image: payments-api:latest
 
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
 
 
         ports:

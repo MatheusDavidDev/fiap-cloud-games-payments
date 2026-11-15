@@ -1,5 +1,3 @@
-version: "3.9"
-
 name: "fgc-payments-docker"
 services:
 
@@ -11,8 +9,8 @@ services:
       - "15672:15672"
 
     environment:
-      RABBITMQ_DEFAULT_USER: fcgrabbtmq
-      RABBITMQ_DEFAULT_PASS: fcgrabbtmq
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
 
     networks:
       - fcg-network
@@ -32,7 +30,7 @@ services:
           memory: 1000M  
               
     environment:
-      SA_PASSWORD: "Sql@123456789"
+      SA_PASSWORD: ${SQL_SA_PASSWORD}
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Developer"
 
@@ -66,17 +64,17 @@ services:
           memory: 256M       
 
     environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTP_PORTS: "8080"
+      
       #ConnectionStrings
       ConnectionStrings__DefaultConnection: "Server=payments-db;Database=paymentso;User Id=sa;Password=Sql@123456789;TrustServerCertificate=True"
-
-      #JWT
-      Jwt__Key: "uma-chave-grande-e-secreta-para-jwt"
 
       # RabbitMQ
       RabbitMQ__Host: "rabbitmq"
       RabbitMQ__VirtualHost: "/"
-      RabbitMQ__Username: "fcgrabbtmq"
-      RabbitMQ__Password: "fcgrabbtmq"
+      RabbitMQ__Username: "${RABBITMQ_USER}"
+      RabbitMQ__Password: "${RABBITMQ_PASSWORD}"
 
     networks:
       - fcg-network
