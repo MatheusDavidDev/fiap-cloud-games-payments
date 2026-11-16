@@ -8,6 +8,7 @@ RUN dotnet restore FCG.Payments.sln
 
 RUN dotnet publish src/FCG.Payments.Api/FCG.Payments.Api.csproj \
     -c Release \
+    --no-restore \
     -o /app/publish
 
 
